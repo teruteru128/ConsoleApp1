@@ -2,10 +2,7 @@
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,6 +32,17 @@ namespace ConsoleApp1
             {
                 r.Read(b, 0, b.Length);
             }
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < 16; i++)
+            {
+                Task task = Task.Run(() => Search(b));
+                tasks.Add(task);
+            }
+            tasks[0].Wait();
+        }
+
+        private static void Search(byte[] b)
+        {
             using (SHA512 sha512 = SHA512.Create())
             using (RIPEMD160 ripemd160 = RIPEMD160.Create())
             using (RandomNumberGenerator generator = RandomNumberGenerator.Create())
