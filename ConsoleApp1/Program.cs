@@ -48,23 +48,30 @@ namespace ConsoleApp1
             using (RandomNumberGenerator generator = RandomNumberGenerator.Create())
             {
                 bool con = true;
+                int index = 0;
+                int offset = 0;
                 byte[] buf = new byte[3];
+                int i = 0;
+                int j = 0;
                 do
                 {
                     generator.GetBytes(buf);
-                    int index = ((buf[0] & 0xff) << 16) + ((buf[1] & 0xff) << 8) + ((buf[2] & 0xff));
-                    int offset = (index << 6) + index;
-                    for (int i = 0; i < 1090519040; i += 65)
+                    index = (((buf[0] & 0xff) << 12) | ((buf[1] & 0xff) << 4) | ((buf[2] & 0xff) >> 4)) << 4;
+                    offset = (index << 6) + index;
+                    for (i = 0; i < 1090519040; i += 65)
                     {
-                        sha512.TransformBlock(b, offset, 65, null, 0);
-                        sha512.TransformFinalBlock(b, i, 65);
-                        if ((BinaryPrimitives.ReadUInt64BigEndian(ripemd160.ComputeHash(sha512.Hash)) & 0xffffffffffff0000L) == 0)
+                        for (j = 0; j < 1040; j += 65)
                         {
-                            Console.WriteLine("{0},{1}", index, i / 65);
-                            con = false;
+                            sha512.TransformBlock(b, offset + j, 65, null, 0);
+                            sha512.TransformFinalBlock(b, i, 65);
+                            if ((BinaryPrimitives.ReadUInt64BigEndian(ripemd160.ComputeHash(sha512.Hash)) & 0xffffffffffff0000L) == 0)
+                            {
+                                Console.WriteLine("{0},{1}", index + (j / 65), i / 65);
+                                con = false;
+                            }
+                            sha512.Initialize();
+                            ripemd160.Initialize();
                         }
-                        sha512.Initialize();
-                        ripemd160.Initialize();
                     }
                     Console.Error.WriteLine("{0} done", index);
                 } while (con);
