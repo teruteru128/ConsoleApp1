@@ -33,13 +33,22 @@ namespace ConsoleApp1
                 r.Read(b, 0, b.Length);
             }
             List<Task> tasks = new List<Task>();
-            for (int i = 0; i < 16; i++)
+            int threads = 1;
+            if (args.Length > 1) { int.TryParse(args[1], out threads); }
+            if (threads < 1) { threads = 1; }
+            for (int i = 0; i < threads; i++)
             {
                 Task task = Task.Run(() => Search(b));
                 tasks.Add(task);
             }
             tasks[0].Wait();
+            for (int i = 1; i < threads; i++)
+            {
+                tasks[i].Wait();
+            }
         }
+
+        private static bool con = true;
 
         private static void Search(byte[] b)
         {
@@ -47,7 +56,6 @@ namespace ConsoleApp1
             using (RIPEMD160 ripemd160 = RIPEMD160.Create())
             using (RandomNumberGenerator generator = RandomNumberGenerator.Create())
             {
-                bool con = true;
                 int index = 0;
                 int offset = 0;
                 byte[] buf = new byte[3];
