@@ -10,15 +10,6 @@ namespace ConsoleApp1
 {
     internal class Program
     {
-        public static string BytesToStr(byte[] bytes)
-        {
-            StringBuilder str = new StringBuilder(bytes.Length * 2);
-
-            for (int i = 0; i < bytes.Length; i++)
-                str.AppendFormat("{0:X2}", bytes[i]);
-
-            return str.ToString();
-        }
 
         static void Main(string[] args)
         {
@@ -72,7 +63,7 @@ namespace ConsoleApp1
                         {
                             sha512.TransformBlock(b, offset + j, 65, null, 0);
                             sha512.TransformFinalBlock(b, i, 65);
-                            if ((BinaryPrimitives.ReadUInt64BigEndian(ripemd160.ComputeHash(sha512.Hash)) & 0xffffffffffff0000L) == 0)
+                            if ((BinaryPrimitives.ReadUInt64BigEndian(ripemd160.ComputeHash(sha512.Hash)) & 0xffffffffffff0000L) == 0UL)
                             {
                                 Console.WriteLine("{0},{1}", index + (j / 65), i / 65);
                                 con = false;
